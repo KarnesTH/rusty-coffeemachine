@@ -1,7 +1,8 @@
+#![allow(unused)]
+
 use crate::containers::{GarbageContainer, IngredientsContainer};
 use crate::reciepes::Reciepes;
-
-const LINE_AMOUNT: usize = 50;
+use crate::{get_input, ProgressBar, LINE_AMOUNT};
 
 #[derive(Debug)]
 pub struct CoffeeMachine {
@@ -23,15 +24,32 @@ impl CoffeeMachine {
             garbage_container: GarbageContainer {
                 coffee_grounds: 0.0,
             },
-            reciepes: Vec::new(),
+            reciepes: Reciepes::get_reciepes(),
         }
     }
 
+    fn start_up(&self) {
+        println!("Welcome to the coffee machine");
+        println!("Starting machine...");
+        self.draw_progress(50);
+        println!("Machine started");
+    }
+
+    fn draw_progress(&self, duration: u64) {
+        let mut progress_bar = ProgressBar::new(100.0);
+        for i in 0..=100 {
+            progress_bar.set_progress(i as f32);
+            progress_bar.draw();
+            std::thread::sleep(std::time::Duration::from_millis(duration));
+        }
+        println!();
+    }
+
     pub fn run(&mut self) {
+        self.start_up();
         loop {
             self.print_menu();
-            let choice = self.get_choice();
-            self.make_coffee(choice);
+            let choice = get_input().parse::<usize>().unwrap();
         }
     }
 
@@ -45,16 +63,7 @@ impl CoffeeMachine {
     }
 
     fn print_line(&self) {
-        for _ in 0..LINE_AMOUNT {
-            print!("~");
-        }
-        println!();
-    }
-
-    fn get_choice(&self) -> usize {
-        let mut choice = String::new();
-        std::io::stdin().read_line(&mut choice).unwrap();
-        choice.trim().parse().unwrap()
+        println!("{}", "~".repeat(LINE_AMOUNT))
     }
 
     fn make_coffee(&mut self, choice: usize) {
