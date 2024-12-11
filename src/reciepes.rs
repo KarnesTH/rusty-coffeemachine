@@ -7,10 +7,43 @@ pub struct Reciepes {
 }
 
 impl Reciepes {
+    /// Create a new reciepe
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name of the reciepe
+    /// * `ingredients` - The ingredients of the reciepe
+    ///
+    /// # Returns
+    ///
+    /// A new reciepe
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let reciepe = Reciepes::new("Espresso".to_string(), IngredientsContainer {
+    ///    water: 30.0,
+    ///    coffee: 30.0,
+    ///    milk: 0.0,
+    ///    sugar: 0.0,
+    ///    cacao: 0.0,
+    /// });
+    /// ```
     pub fn new(name: String, ingredients: IngredientsContainer) -> Self {
         Reciepes { name, ingredients }
     }
 
+    /// Get a list of reciepes
+    ///
+    /// # Returns
+    ///
+    /// A vector containing all the reciepes
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let reciepes = Reciepes::get_reciepes();
+    /// ```
     pub fn get_reciepes() -> Vec<Reciepes> {
         vec![
             Reciepes::new(

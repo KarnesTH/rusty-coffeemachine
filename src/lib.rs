@@ -29,6 +29,19 @@ pub fn get_input() -> String {
     input.trim().to_string()
 }
 
+/// Print a line
+///
+/// This function prints a line to the terminal
+///
+/// # Examples
+///
+/// ```
+/// rusty_coffeemachine::print_line();
+/// ```
+pub fn print_line() {
+    println!("{}", "~".repeat(LINE_AMOUNT))
+}
+
 #[derive(Debug)]
 pub struct ProgressBar {
     pub progress: f32,
