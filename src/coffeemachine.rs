@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use crate::containers::{GarbageContainer, IngredientsContainer};
 use crate::reciepes::Reciepes;
 use crate::{get_input, print_line, ProgressBar};
@@ -49,32 +47,32 @@ impl CoffeeMachine {
     /// let mut machine = CoffeeMachine::new();
     /// machine.run();
     /// ```
-    pub fn run(&mut self) {
-        self.start_up();
+    pub fn run(&mut self) -> Result<(), std::io::Error> {
+        self.start_up()?;
         loop {
-            self.print_main_menu();
-            let choice = get_input().parse::<usize>().unwrap();
+            self.print_main_menu()?;
+            let choice = get_input()?.parse::<usize>().unwrap();
             match choice {
                 1 => {
-                    self.print_menu();
-                    let choice = get_input().parse::<usize>().unwrap();
-                    self.make_coffee(choice);
+                    self.print_menu()?;
+                    let choice = get_input()?.parse::<usize>().unwrap();
+                    self.make_coffee(choice)?;
                 }
                 2 => {
-                    self.print_ingredients();
+                    self.print_ingredients()?;
                 }
                 3 => {
-                    self.print_garbage();
+                    self.print_garbage()?;
                 }
                 4 => {
                     println!("Servicing...");
-                    self.take_service();
-                    self.draw_progress(200);
+                    self.take_service()?;
+                    self.draw_progress(200)?;
                     println!("Service done.");
                 }
                 5 => {
                     println!("Shutting down...");
-                    self.draw_progress(50);
+                    self.draw_progress(50)?;
                     break;
                 }
                 _ => {
@@ -82,78 +80,92 @@ impl CoffeeMachine {
                 }
             }
         }
+
+        Ok(())
     }
 
     /// Start up the coffee machine
     ///
     /// This function prints the starts up the coffee machine to the terminal.
-    fn start_up(&self) {
+    fn start_up(&self) -> Result<(), std::io::Error> {
         println!("Welcome to the coffee machine");
         println!("Starting machine...");
-        self.draw_progress(50);
+        self.draw_progress(50)?;
         println!("Machine ready.");
+
+        Ok(())
     }
 
     /// Draw a progress bar
     ///
     /// This function draws a progress bar to the terminal
-    fn draw_progress(&self, duration: u64) {
+    fn draw_progress(&self, duration: u64) -> Result<(), std::io::Error> {
         let mut progress_bar = ProgressBar::new(100.0);
         for i in 0..=100 {
-            progress_bar.set_progress(i as f32);
-            progress_bar.draw();
+            let _ = progress_bar.set_progress(i as f32);
+            progress_bar.draw()?;
             std::thread::sleep(std::time::Duration::from_millis(duration));
         }
         println!();
+
+        Ok(())
     }
 
     /// Print the main menu
     ///
     /// This function prints the main menu to the terminal
-    fn print_main_menu(&self) {
-        print_line();
+    fn print_main_menu(&self) -> Result<(), std::io::Error> {
+        print_line()?;
         println!("1. Make coffee");
         println!("2. Check ingredients");
         println!("3. Check garbage");
         println!("4. Service");
         println!("5. Exit");
-        print_line();
+        print_line()?;
+
+        Ok(())
     }
 
     /// Print the coffee menu
     ///
     /// This function prints the coffee menu to the terminal
-    fn print_menu(&self) {
-        print_line();
+    fn print_menu(&self) -> Result<(), std::io::Error> {
+        print_line()?;
         println!("Choose a coffee:");
         for (i, reciepe) in self.reciepes.iter().enumerate() {
             println!("{}. {}", i + 1, reciepe.name);
         }
-        print_line();
+        print_line()?;
+
+        Ok(())
     }
 
     /// Print the ingredients
     ///
     /// This function prints the ingredients to the terminal
-    fn print_ingredients(&self) {
-        print_line();
+    fn print_ingredients(&self) -> Result<(), std::io::Error> {
+        print_line()?;
         println!("Ingredients:");
         println!("Water: {}", self.ingredients_container.water);
         println!("Coffee: {}", self.ingredients_container.coffee);
         println!("Milk: {}", self.ingredients_container.milk);
         println!("Sugar: {}", self.ingredients_container.sugar);
         println!("Cacao: {}", self.ingredients_container.cacao);
-        print_line();
+        print_line()?;
+
+        Ok(())
     }
 
     /// Print the garbage
     ///
     /// This function prints the garbage to the terminal
-    fn print_garbage(&self) {
-        print_line();
+    fn print_garbage(&self) -> Result<(), std::io::Error> {
+        print_line()?;
         println!("Garbage:");
         println!("Coffee grounds: {}", self.garbage_container.coffee_grounds);
-        print_line();
+        print_line()?;
+
+        Ok(())
     }
 
     /// Make a coffee
@@ -163,16 +175,18 @@ impl CoffeeMachine {
     /// # Arguments
     ///
     /// * `choice` - The choice of coffee to make
-    fn make_coffee(&mut self, choice: usize) {
+    fn make_coffee(&mut self, choice: usize) -> Result<(), std::io::Error> {
         let reciepe = &self.reciepes.clone()[choice - 1];
-        if self.check_ingredients(&reciepe.ingredients) {
-            self.use_ingredients(&reciepe.ingredients);
+        if self.check_ingredients(&reciepe.ingredients)? {
+            self.use_ingredients(&reciepe.ingredients)?;
             println!("Make your {}", reciepe.name);
-            self.draw_progress(100);
+            self.draw_progress(100)?;
             println!("{} ready to go.", reciepe.name);
         } else {
             println!("Not enough ingredients");
         }
+
+        Ok(())
     }
 
     /// Check if there are enough ingredients
@@ -186,12 +200,17 @@ impl CoffeeMachine {
     /// # Returns
     ///
     /// A boolean indicating if there are enough ingredients
-    fn check_ingredients(&self, ingredients: &IngredientsContainer) -> bool {
-        self.ingredients_container.water >= ingredients.water
+    fn check_ingredients(
+        &self,
+        ingredients: &IngredientsContainer,
+    ) -> Result<bool, std::io::Error> {
+        let result = self.ingredients_container.water >= ingredients.water
             && self.ingredients_container.coffee >= ingredients.coffee
             && self.ingredients_container.milk >= ingredients.milk
             && self.ingredients_container.sugar >= ingredients.sugar
-            && self.ingredients_container.cacao >= ingredients.cacao
+            && self.ingredients_container.cacao >= ingredients.cacao;
+
+        Ok(result)
     }
 
     /// Use ingredients
@@ -201,7 +220,10 @@ impl CoffeeMachine {
     /// # Arguments
     ///
     /// * `ingredients` - The ingredients to use
-    fn use_ingredients(&mut self, ingredients: &IngredientsContainer) {
+    fn use_ingredients(
+        &mut self,
+        ingredients: &IngredientsContainer,
+    ) -> Result<(), std::io::Error> {
         self.ingredients_container.water -= ingredients.water;
         self.ingredients_container.coffee -= ingredients.coffee;
         self.ingredients_container.milk -= ingredients.milk;
@@ -211,17 +233,21 @@ impl CoffeeMachine {
         if ingredients.coffee > 0.0 {
             self.garbage_container.coffee_grounds += ingredients.coffee;
         }
+
+        Ok(())
     }
 
     /// Take service
     ///
     /// This function takes the service of the coffee machine, refilling the ingredients and emptying the garbage
-    fn take_service(&mut self) {
+    fn take_service(&mut self) -> Result<(), std::io::Error> {
         self.ingredients_container.water = 100.0;
         self.ingredients_container.coffee = 100.0;
         self.ingredients_container.milk = 100.0;
         self.ingredients_container.sugar = 100.0;
         self.ingredients_container.cacao = 100.0;
         self.garbage_container.coffee_grounds = 0.0;
+
+        Ok(())
     }
 }

@@ -18,28 +18,42 @@ pub const LINE_AMOUNT: usize = 50;
 ///
 /// A string containing the input from the user
 ///
+/// # Errors
+///
+/// This function will return an error if reading from the terminal fails
+///
 /// # Examples
 ///
 /// ```
 /// let input = rusty_coffeemachine::get_input();
 /// ```
-pub fn get_input() -> String {
+pub fn get_input() -> Result<String, std::io::Error> {
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).unwrap();
-    input.trim().to_string()
+    std::io::stdin().read_line(&mut input)?;
+    Ok(input.trim().to_string())
 }
 
 /// Print a line
 ///
 /// This function prints a line to the terminal
 ///
+/// # Returns
+///
+/// An empty result
+///
+/// # Errors
+///
+/// This function will return an error if writing to the terminal fails
+///
 /// # Examples
 ///
 /// ```
 /// rusty_coffeemachine::print_line();
 /// ```
-pub fn print_line() {
-    println!("{}", "~".repeat(LINE_AMOUNT))
+pub fn print_line() -> Result<(), std::io::Error> {
+    println!("{}", "~".repeat(LINE_AMOUNT));
+
+    Ok(())
 }
 
 #[derive(Debug)]
@@ -74,13 +88,26 @@ impl ProgressBar {
     ///
     /// * `progress` - The progress of the progress bar
     ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the progress is greater than the max value
+    ///
     /// # Examples
     ///
     /// ```
     /// progress_bar.set_progress(50.0);
     /// ```
-    pub fn set_progress(&mut self, progress: f32) {
+    pub fn set_progress(&mut self, progress: f32) -> Result<(), Box<dyn std::error::Error>> {
+        if progress > self.max {
+            return Err("Progress is greater than max value".into());
+        }
         self.progress = progress;
+
+        Ok(())
     }
 
     /// Draw the progress bar
@@ -92,7 +119,7 @@ impl ProgressBar {
     /// ```
     /// progress_bar.draw();
     /// ```
-    pub fn draw(&self) {
+    pub fn draw(&self) -> Result<(), std::io::Error> {
         let progress = (self.progress / self.max * 100.0) as usize;
         let bar = format!(
             "\r[{}{}] {}%",
@@ -101,6 +128,8 @@ impl ProgressBar {
             progress
         );
         print!("{}", bar);
-        std::io::stdout().flush().unwrap();
+        std::io::stdout().flush()?;
+
+        Ok(())
     }
 }
