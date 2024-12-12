@@ -16,13 +16,17 @@ impl CoffeeMachine {
     ///
     /// A new coffee machine
     ///
+    /// # Errors
+    ///
+    /// This function will return an error if creating the coffee machine fails
+    ///
     /// # Examples
     ///
     /// ```
     /// let machine = CoffeeMachine::new();
     /// ```
-    pub fn new() -> Self {
-        CoffeeMachine {
+    pub fn new() -> Result<Self, std::io::Error> {
+        let machine = CoffeeMachine {
             ingredients_container: IngredientsContainer {
                 water: 100.0,
                 coffee: 100.0,
@@ -33,13 +37,23 @@ impl CoffeeMachine {
             garbage_container: GarbageContainer {
                 coffee_grounds: 0.0,
             },
-            reciepes: Reciepes::get_reciepes(),
-        }
+            reciepes: Reciepes::get_reciepes()?,
+        };
+
+        Ok(machine)
     }
 
     /// Run the coffee machine
     ///
     /// This function runs the coffee machine and allows the user to interact with it
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if running the coffee machine fails
     ///
     /// # Examples
     ///
@@ -51,11 +65,15 @@ impl CoffeeMachine {
         self.start_up()?;
         loop {
             self.print_main_menu()?;
-            let choice = get_input()?.parse::<usize>().unwrap();
+            let choice = get_input()?
+                .parse::<usize>()
+                .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
             match choice {
                 1 => {
                     self.print_menu()?;
-                    let choice = get_input()?.parse::<usize>().unwrap();
+                    let choice = get_input()?
+                        .parse::<usize>()
+                        .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
                     self.make_coffee(choice)?;
                 }
                 2 => {
@@ -87,6 +105,14 @@ impl CoffeeMachine {
     /// Start up the coffee machine
     ///
     /// This function prints the starts up the coffee machine to the terminal.
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if writing to the terminal fails
     fn start_up(&self) -> Result<(), std::io::Error> {
         println!("Welcome to the coffee machine");
         println!("Starting machine...");
@@ -99,6 +125,18 @@ impl CoffeeMachine {
     /// Draw a progress bar
     ///
     /// This function draws a progress bar to the terminal
+    ///
+    /// # Arguments
+    ///
+    /// * `duration` - The duration of the progress bar
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if writing to the terminal fails
     fn draw_progress(&self, duration: u64) -> Result<(), std::io::Error> {
         let mut progress_bar = ProgressBar::new(100.0);
         for i in 0..=100 {
@@ -114,6 +152,14 @@ impl CoffeeMachine {
     /// Print the main menu
     ///
     /// This function prints the main menu to the terminal
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if writing to the terminal fails
     fn print_main_menu(&self) -> Result<(), std::io::Error> {
         print_line()?;
         println!("1. Make coffee");
@@ -129,6 +175,14 @@ impl CoffeeMachine {
     /// Print the coffee menu
     ///
     /// This function prints the coffee menu to the terminal
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if writing to the terminal fails
     fn print_menu(&self) -> Result<(), std::io::Error> {
         print_line()?;
         println!("Choose a coffee:");
@@ -143,6 +197,14 @@ impl CoffeeMachine {
     /// Print the ingredients
     ///
     /// This function prints the ingredients to the terminal
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if writing to the terminal fails
     fn print_ingredients(&self) -> Result<(), std::io::Error> {
         print_line()?;
         println!("Ingredients:");
@@ -159,6 +221,14 @@ impl CoffeeMachine {
     /// Print the garbage
     ///
     /// This function prints the garbage to the terminal
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if writing to the terminal fails
     fn print_garbage(&self) -> Result<(), std::io::Error> {
         print_line()?;
         println!("Garbage:");
@@ -175,6 +245,14 @@ impl CoffeeMachine {
     /// # Arguments
     ///
     /// * `choice` - The choice of coffee to make
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if making the coffee fails
     fn make_coffee(&mut self, choice: usize) -> Result<(), std::io::Error> {
         let reciepe = &self.reciepes.clone()[choice - 1];
         if self.check_ingredients(&reciepe.ingredients)? {
@@ -200,6 +278,10 @@ impl CoffeeMachine {
     /// # Returns
     ///
     /// A boolean indicating if there are enough ingredients
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if checking the ingredients fails
     fn check_ingredients(
         &self,
         ingredients: &IngredientsContainer,
@@ -220,6 +302,14 @@ impl CoffeeMachine {
     /// # Arguments
     ///
     /// * `ingredients` - The ingredients to use
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if using the ingredients fails
     fn use_ingredients(
         &mut self,
         ingredients: &IngredientsContainer,
@@ -240,6 +330,14 @@ impl CoffeeMachine {
     /// Take service
     ///
     /// This function takes the service of the coffee machine, refilling the ingredients and emptying the garbage
+    ///
+    /// # Returns
+    ///
+    /// An empty result
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if taking the service fails
     fn take_service(&mut self) -> Result<(), std::io::Error> {
         self.ingredients_container.water = 100.0;
         self.ingredients_container.coffee = 100.0;

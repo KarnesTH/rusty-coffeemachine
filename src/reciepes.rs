@@ -18,6 +18,10 @@ impl Reciepes {
     ///
     /// A new reciepe
     ///
+    /// # Errors
+    ///
+    /// This function will return an error if creating the reciepe fails
+    ///
     /// # Examples
     ///
     /// ```
@@ -29,8 +33,10 @@ impl Reciepes {
     ///    cacao: 0.0,
     /// });
     /// ```
-    pub fn new(name: String, ingredients: IngredientsContainer) -> Self {
-        Reciepes { name, ingredients }
+    pub fn new(name: String, ingredients: IngredientsContainer) -> Result<Self, std::io::Error> {
+        let reciepes = Reciepes { name, ingredients };
+
+        Ok(reciepes)
     }
 
     /// Get a list of reciepes
@@ -39,13 +45,17 @@ impl Reciepes {
     ///
     /// A vector containing all the reciepes
     ///
+    /// # Errors
+    ///
+    /// This function will return an error if creating the reciepes fails
+    ///
     /// # Examples
     ///
     /// ```
     /// let reciepes = Reciepes::get_reciepes();
     /// ```
-    pub fn get_reciepes() -> Vec<Reciepes> {
-        vec![
+    pub fn get_reciepes() -> Result<Vec<Reciepes>, std::io::Error> {
+        let init_reciepes = vec![
             Reciepes::new(
                 "Espresso".to_string(),
                 IngredientsContainer {
@@ -55,7 +65,7 @@ impl Reciepes {
                     sugar: 0.0,
                     cacao: 0.0,
                 },
-            ),
+            )?,
             Reciepes::new(
                 "Americano".to_string(),
                 IngredientsContainer {
@@ -65,7 +75,7 @@ impl Reciepes {
                     sugar: 0.0,
                     cacao: 0.0,
                 },
-            ),
+            )?,
             Reciepes::new(
                 "Cappuccino".to_string(),
                 IngredientsContainer {
@@ -75,7 +85,7 @@ impl Reciepes {
                     sugar: 0.0,
                     cacao: 0.0,
                 },
-            ),
+            )?,
             Reciepes::new(
                 "Latte".to_string(),
                 IngredientsContainer {
@@ -85,7 +95,7 @@ impl Reciepes {
                     sugar: 0.0,
                     cacao: 0.0,
                 },
-            ),
+            )?,
             Reciepes::new(
                 "Mocha".to_string(),
                 IngredientsContainer {
@@ -95,7 +105,8 @@ impl Reciepes {
                     sugar: 30.0,
                     cacao: 30.0,
                 },
-            ),
-        ]
+            )?,
+        ];
+        Ok(init_reciepes)
     }
 }
