@@ -1,0 +1,6 @@
+[book]
+authors = ["KarnesTH"]
+language = "de"
+multilingual = true
+src = "src"
+title = "Rusty Coffee Machine"
