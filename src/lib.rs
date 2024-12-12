@@ -99,6 +99,7 @@ impl ProgressBar {
     /// # Examples
     ///
     /// ```
+    /// let mut progress_bar = rusty_coffeemachine::ProgressBar::new(100.0);
     /// progress_bar.set_progress(50.0);
     /// ```
     pub fn set_progress(&mut self, progress: f32) -> Result<(), Box<dyn std::error::Error>> {
@@ -117,6 +118,7 @@ impl ProgressBar {
     /// # Examples
     ///
     /// ```
+    /// let progress_bar = rusty_coffeemachine::ProgressBar::new(100.0);
     /// progress_bar.draw();
     /// ```
     pub fn draw(&self) -> Result<(), std::io::Error> {
@@ -131,5 +133,38 @@ impl ProgressBar {
         std::io::stdout().flush()?;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_progress_bar_new() {
+        let progress_bar = ProgressBar::new(100.0);
+        assert_eq!(progress_bar.progress, 0.0);
+        assert_eq!(progress_bar.max, 100.0);
+    }
+
+    #[test]
+    fn test_progress_bar_set_progress() {
+        let mut progress_bar = ProgressBar::new(100.0);
+        progress_bar.set_progress(50.0).unwrap();
+        assert_eq!(progress_bar.progress, 50.0);
+    }
+
+    #[test]
+    fn test_progress_bar_set_progress_error() {
+        let mut progress_bar = ProgressBar::new(100.0);
+        let result = progress_bar.set_progress(150.0);
+        assert_eq!(result.is_err(), true);
+    }
+
+    #[test]
+    fn test_progress_bar_edge_cases() {
+        let mut progress_bar = ProgressBar::new(100.0);
+        assert!(progress_bar.set_progress(0.0).is_ok());
+        assert!(progress_bar.set_progress(100.0).is_ok());
     }
 }

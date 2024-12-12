@@ -23,6 +23,7 @@ impl CoffeeMachine {
     /// # Examples
     ///
     /// ```
+    /// use rusty_coffeemachine::CoffeeMachine;
     /// let machine = CoffeeMachine::new();
     /// ```
     pub fn new() -> Result<Self, std::io::Error> {
@@ -57,9 +58,10 @@ impl CoffeeMachine {
     ///
     /// # Examples
     ///
-    /// ```
-    /// let mut machine = CoffeeMachine::new();
-    /// machine.run();
+    /// ```no_run
+    /// use rusty_coffeemachine::CoffeeMachine;
+    /// let mut machine = CoffeeMachine::new().unwrap();
+    /// machine.run().unwrap();
     /// ```
     pub fn run(&mut self) -> Result<(), std::io::Error> {
         self.start_up()?;
@@ -347,5 +349,103 @@ impl CoffeeMachine {
         self.garbage_container.coffee_grounds = 0.0;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_coffee_machine_new() {
+        let machine = CoffeeMachine::new().unwrap();
+        assert_eq!(machine.ingredients_container.water, 100.0);
+        assert_eq!(machine.ingredients_container.coffee, 100.0);
+        assert_eq!(machine.ingredients_container.milk, 100.0);
+        assert_eq!(machine.ingredients_container.sugar, 100.0);
+        assert_eq!(machine.ingredients_container.cacao, 100.0);
+        assert_eq!(machine.garbage_container.coffee_grounds, 0.0);
+        assert_eq!(machine.reciepes.len(), 5);
+    }
+
+    #[test]
+    fn test_coffee_machine_check_ingredients() {
+        let machine = CoffeeMachine::new().unwrap();
+        let reciepe = Reciepes::new(
+            "Espresso".to_string(),
+            IngredientsContainer {
+                water: 30.0,
+                coffee: 30.0,
+                milk: 0.0,
+                sugar: 0.0,
+                cacao: 0.0,
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            machine.check_ingredients(&reciepe.ingredients).unwrap(),
+            true
+        );
+    }
+
+    #[test]
+    fn test_coffee_machine_use_ingredients() {
+        let mut machine = CoffeeMachine::new().unwrap();
+        let reciepe = Reciepes::new(
+            "Espresso".to_string(),
+            IngredientsContainer {
+                water: 30.0,
+                coffee: 30.0,
+                milk: 0.0,
+                sugar: 0.0,
+                cacao: 0.0,
+            },
+        )
+        .unwrap();
+        machine.use_ingredients(&reciepe.ingredients).unwrap();
+        assert_eq!(machine.ingredients_container.water, 70.0);
+        assert_eq!(machine.ingredients_container.coffee, 70.0);
+        assert_eq!(machine.ingredients_container.milk, 100.0);
+        assert_eq!(machine.ingredients_container.sugar, 100.0);
+        assert_eq!(machine.ingredients_container.cacao, 100.0);
+        assert_eq!(machine.garbage_container.coffee_grounds, 30.0);
+    }
+
+    #[test]
+    fn test_coffee_machine_take_service() {
+        let mut machine = CoffeeMachine::new().unwrap();
+        machine.ingredients_container.water = 50.0;
+        machine.ingredients_container.coffee = 100.0;
+        machine.ingredients_container.milk = 50.0;
+        machine.ingredients_container.sugar = 100.0;
+        machine.ingredients_container.cacao = 100.0;
+        machine.garbage_container.coffee_grounds = 30.0;
+        machine.take_service().unwrap();
+        assert_eq!(machine.ingredients_container.water, 100.0);
+        assert_eq!(machine.ingredients_container.coffee, 100.0);
+        assert_eq!(machine.ingredients_container.milk, 100.0);
+        assert_eq!(machine.ingredients_container.sugar, 100.0);
+        assert_eq!(machine.ingredients_container.cacao, 100.0);
+        assert_eq!(machine.garbage_container.coffee_grounds, 0.0);
+    }
+
+    #[test]
+    fn test_insufficient_ingrediants() {
+        let machine = CoffeeMachine::new().unwrap();
+        let reciepe = Reciepes::new(
+            "Large".to_string(),
+            IngredientsContainer {
+                water: 150.0,
+                coffee: 30.0,
+                milk: 0.0,
+                sugar: 0.0,
+                cacao: 0.0,
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            machine.check_ingredients(&reciepe.ingredients).unwrap(),
+            false
+        );
     }
 }
