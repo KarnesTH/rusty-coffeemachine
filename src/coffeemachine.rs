@@ -1,6 +1,6 @@
 use crate::containers::{GarbageContainer, IngredientsContainer};
 use crate::reciepes::Reciepes;
-use crate::{get_input, print_line, ProgressBar};
+use crate::{clean_terminal, get_input, print_line, ProgressBar};
 
 #[derive(Debug)]
 pub struct CoffeeMachine {
@@ -64,35 +64,54 @@ impl CoffeeMachine {
     /// machine.run().unwrap();
     /// ```
     pub fn run(&mut self) -> Result<(), std::io::Error> {
+        clean_terminal()?;
         self.start_up()?;
+        std::thread::sleep(std::time::Duration::from_millis(2000));
+        clean_terminal()?;
         loop {
+            clean_terminal()?;
             self.print_main_menu()?;
             let choice = get_input()?
                 .parse::<usize>()
                 .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
             match choice {
                 1 => {
+                    clean_terminal()?;
                     self.print_menu()?;
                     let choice = get_input()?
                         .parse::<usize>()
                         .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
+                    clean_terminal()?;
                     self.make_coffee(choice)?;
+                    std::thread::sleep(std::time::Duration::from_millis(2000));
+                    clean_terminal()?;
                 }
                 2 => {
+                    clean_terminal()?;
                     self.print_ingredients()?;
+                    std::thread::sleep(std::time::Duration::from_millis(2000));
+                    clean_terminal()?;
                 }
                 3 => {
+                    clean_terminal()?;
                     self.print_garbage()?;
+                    std::thread::sleep(std::time::Duration::from_millis(2000));
+                    clean_terminal()?;
                 }
                 4 => {
+                    clean_terminal()?;
                     println!("Servicing...");
                     self.take_service()?;
                     self.draw_progress(200)?;
                     println!("Service done.");
+                    std::thread::sleep(std::time::Duration::from_millis(2000));
+                    clean_terminal()?;
                 }
                 5 => {
+                    clean_terminal()?;
                     println!("Shutting down...");
                     self.draw_progress(50)?;
+                    clean_terminal()?;
                     break;
                 }
                 _ => {
@@ -164,6 +183,8 @@ impl CoffeeMachine {
     /// This function will return an error if writing to the terminal fails
     fn print_main_menu(&self) -> Result<(), std::io::Error> {
         print_line()?;
+        println!("Choose your choice");
+        print_line()?;
         println!("1. Make coffee");
         println!("2. Check ingredients");
         println!("3. Check garbage");
@@ -188,6 +209,7 @@ impl CoffeeMachine {
     fn print_menu(&self) -> Result<(), std::io::Error> {
         print_line()?;
         println!("Choose a coffee:");
+        print_line()?;
         for (i, reciepe) in self.reciepes.iter().enumerate() {
             println!("{}. {}", i + 1, reciepe.name);
         }

@@ -136,6 +136,30 @@ impl ProgressBar {
     }
 }
 
+/// Clean the terminal
+///
+/// This function clears the terminal
+///
+/// # Returns
+///
+/// An empty result
+///
+/// # Errors
+///
+/// This function will return an error if writing to the terminal fails
+///
+/// # Examples
+///
+/// ```
+/// rusty_coffeemachine::clean_terminal();
+/// ```
+pub fn clean_terminal() -> Result<(), std::io::Error> {
+    print!("\x1B[2J\x1B[1;1H");
+    std::io::stdout().flush()?;
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
