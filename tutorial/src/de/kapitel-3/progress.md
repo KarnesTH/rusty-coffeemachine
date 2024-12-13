@@ -1,1 +1,0 @@
-# Fortschrittsanzeige
