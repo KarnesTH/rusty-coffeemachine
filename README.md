@@ -28,14 +28,7 @@ rusty-coffeemachine/
 └── Cargo.toml
 ```
 
-## Difficulty Level: Intermediate 🟡
-
-This project is ideal for Rust developers who:
-- Have basic understanding of Rust syntax
-- Want to practice real-world application development
-- Are interested in learning about testing and documentation
-
-### Concepts Demonstrated
+## Concepts Demonstrated
 
 - Struct and Implementation blocks
 - Error handling with Result
